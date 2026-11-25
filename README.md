@@ -2,8 +2,8 @@
 
 Dashboard interactivo en **Flask** sobre la evolución de los precios de los alimentos en distintos países (2010–2025).
 
-- **Aplicación en línea:** [enlace a PythonAnywhere]
-- **Repositorio:** [enlace a GitHub]
+- **Aplicación en línea:** https://chamsli.pythonanywhere.com
+- **Repositorio:** https://github.com/chamsli/food_price_dashboard/
 
 ## Qué muestra la aplicación
 
