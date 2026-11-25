@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ country }} {{ year }}{% endblock %}
+
+{% block hero %}
+    <h1>{{ country }} · {{ year }}</h1>
+    <p class="subtitle">Detalle mes a mes de los precios de los alimentos</p>
+{% endblock %}
+
+{% block content %}
+<p class="back">
+    <a href="{{ url_for('pais', country=country) }}">← Todos los años de {{ country }}</a>
+    · <a href="{{ url_for('dashboard', country=country) }}">Volver a la tabla</a>
+</p>
+
+<div class="top-row">
+    <section class="prose">
+        <p>
+            En {{ year }}, el índice de precios de los alimentos en {{ country }} pasó de
+            <strong>{{ "%.1f"|format(summary.first.value) }}</strong> en {{ summary.first.name|lower }} a
+            <strong>{{ "%.1f"|format(summary.last.value) }}</strong> en {{ summary.last.name|lower }}:
+            una variación de <strong>{{ "%+.1f"|format(summary.total_change) }}&nbsp;%</strong> dentro del año.
+        </p>
+        {% if summary.biggest_rise %}
+        <p>
+            El mes con mayor subida fue <strong>{{ summary.biggest_rise.name|lower }}</strong>
+            ({{ "%+.2f"|format(summary.biggest_rise.change) }}&nbsp;%)
+            {% if summary.biggest_drop and summary.biggest_drop.change < 0 %}
+                y el de mayor bajada, <strong>{{ summary.biggest_drop.name|lower }}</strong>
+                ({{ "%+.2f"|format(summary.biggest_drop.change) }}&nbsp;%).
+            {% else %}
+                y ningún mes registró una bajada de precios.
+            {% endif %}
+        </p>
+        {% endif %}
+        <p>
+            De los {{ summary.count }} meses con datos, <strong>{{ summary.official }}</strong>
+            {{ "es" if summary.official == 1 else "son" }} valor{{ "" if summary.official == 1 else "es" }} oficial{{ "" if summary.official == 1 else "es" }};
+            el resto son estimaciones.
+            {% if summary.count < 12 %}Este año está incompleto: faltan meses en los datos.{% endif %}
+        </p>
+    </section>
+
+    <section class="facts" aria-label="Datos clave del año">
+        <div><strong>{{ summary.highest.name }}</strong><span>Mes con el índice más alto ({{ "%.1f"|format(summary.highest.value) }})</span></div>
+        <div><strong>{{ summary.lowest.name }}</strong><span>Mes con el índice más bajo ({{ "%.1f"|format(summary.lowest.value) }})</span></div>
+        <div><strong>{{ "%+.1f"|format(summary.total_change) }}&nbsp;%</strong><span>Variación acumulada en el año</span></div>
+        <div><strong>{{ summary.official }}/{{ summary.count }}</strong><span>Meses con valor oficial</span></div>
+    </section>
+</div>
+
+<div class="chart-grid">
+    <section class="chart-block">
+        <h2>¿Cómo evolucionó el índice mes a mes?</h2>
+        <img src="data:image/png;base64,{{ index_img }}" alt="Índice de precios de los alimentos mes a mes en {{ country }}, {{ year }}">
+        <p class="reading"><strong>Cómo leerlo:</strong> {{ base_label }}. Los puntos amarillos son valores estimados, no oficiales.</p>
+    </section>
+    <section class="chart-block">
+        <h2>¿Cuánto cambió cada mes?</h2>
+        <img src="data:image/png;base64,{{ change_img }}" alt="Variación mensual de los precios en {{ country }}, {{ year }}">
+        <p class="reading"><strong>Cómo leerlo:</strong> cada barra compara un mes con el anterior. Rojo significa que los precios subieron y verde que bajaron.</p>
+    </section>
+</div>
+
+<h2 class="section-title">Datos de cada mes</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Mes</th><th>Índice</th><th>Variación mensual</th><th>Fiabilidad</th></tr></thead>
+        <tbody>
+            {% for m in months %}
+            <tr>
+                <td>{{ m.name }}</td>
+                <td class="num">{{ "%.1f"|format(m.value) }}</td>
+                <td class="infl">
+                    {% if m.change is not none %}
+                        {% set w = [m.change|abs * 25, 100]|min %}
+                        <span class="bar {{ 'up' if m.change >= 0 else 'down' }}" style="width: {{ w }}px"></span>
+                        <span class="val">{{ "%+.2f"|format(m.change) }}&nbsp;%</span>
+                    {% else %}<span class="muted">sin dato</span>{% endif %}
+                </td>
+                <td><span class="badge {{ 'ok' if m.official else 'est' }}">{{ "Oficial" if m.official else "Estimado" }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<nav class="pager" aria-label="Años">
+    {% if summary.prev_year %}<a href="{{ url_for('detalle', year=summary.prev_year, country=country) }}">← {{ summary.prev_year }}</a>{% endif %}
+    <span>{{ year }}</span>
+    {% if summary.next_year %}<a href="{{ url_for('detalle', year=summary.next_year, country=country) }}">{{ summary.next_year }} →</a>{% endif %}
+</nav>
+{% endblock %}

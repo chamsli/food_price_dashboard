@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Datos{% endblock %}
+
+{% macro sort_th(col, label, hint="") %}
+    {% set next_order = "desc" if (sort_by == col and order == "asc") else "asc" %}
+    <th scope="col" {% if sort_by == col %}aria-sort="{{ 'ascending' if order == 'asc' else 'descending' }}"{% endif %} {% if hint %}title="{{ hint }}"{% endif %}>
+        <a href="{{ url_for('dashboard', sort=col, order=next_order, **filters) }}">
+            {{ label }}{% if sort_by == col %} <span aria-hidden="true">{{ "▲" if order == "asc" else "▼" }}</span>{% endif %}
+        </a>
+    </th>
+{% endmacro %}
+
+{% block hero %}
+    <h1>¿Cuánto ha subido la comida en cada país?</h1>
+    <p class="subtitle">Precios de los alimentos en {{ insights.countries }} países, {{ insights.years }}</p>
+{% endblock %}
+
+{% block content %}
+<div class="top-row">
+    <section class="prose">
+    <p>
+        Esta página muestra cómo han cambiado los precios de los alimentos en {{ insights.countries }} países
+        entre {{ insights.years }}. Los datos no son precios en euros, sino un <strong>índice</strong>:
+        el nivel de precios del año base vale 100, así que un índice de 120 significa que la comida cuesta
+        un 20&nbsp;% más que entonces. La <strong>inflación</strong> es lo que sube ese índice de un año al siguiente.
+    </p>
+</section>
+    {% if insights %}
+<section class="facts" aria-label="Datos clave">
+    <div>
+        <strong>{{ insights.worst.inflation }}&nbsp;%</strong>
+        <span>Mayor subida anual registrada: {{ insights.worst.country }}, {{ insights.worst.year }}</span>
+    </div>
+    <div>
+        <strong>{{ insights.median_latest }}&nbsp;%</strong>
+        <span>Inflación típica (mediana) de los alimentos en {{ insights.year }}</span>
+    </div>
+    {% if insights.top_cumulative %}
+    <div>
+        <strong>+{{ insights.top_cumulative.since_start }}&nbsp;%</strong>
+        <span>Subida acumulada de {{ insights.top_cumulative.country }} hasta {{ insights.year }}, la mayor del conjunto</span>
+    </div>
+    {% endif %}
+    <div>
+        <strong>{{ "{:,}".format(insights.records).replace(",", ".") }}</strong>
+        <span>Registros mensuales limpios y analizados</span>
+    </div>
+</section>
+{% endif %}
+</div>
+
+<div class="layout">
+    <aside class="sidebar">
+        <form class="filters side" method="get" action="{{ url_for('dashboard') }}">
+    <label>País
+        <select name="country">
+            <option value="">Todos</option>
+            {% for c in countries %}
+                <option value="{{ c }}" {% if c == filters.country %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Desde
+        <select name="year_from">
+            <option value="">—</option>
+            {% for y in years %}<option value="{{ y }}" {% if y == filters.year_from %}selected{% endif %}>{{ y }}</option>{% endfor %}
+        </select>
+    </label>
+    <label>Hasta
+        <select name="year_to">
+            <option value="">—</option>
+            {% for y in years %}<option value="{{ y }}" {% if y == filters.year_to %}selected{% endif %}>{{ y }}</option>{% endfor %}
+        </select>
+    </label>
+    <label>Detalle
+        <select name="detail">
+            <option value="basic">Básico</option>
+            <option value="full" {% if detail %}selected{% endif %}>Completo</option>
+        </select>
+    </label>
+    <input type="hidden" name="sort" value="{{ sort_by }}">
+    <input type="hidden" name="order" value="{{ order }}">
+    <button type="submit">Aplicar filtros</button>
+    <a class="reset" href="{{ url_for('dashboard') }}">Quitar filtros</a>
+</form>
+        <details class="howto">
+    <summary>¿Cómo leer esta tabla?</summary>
+    <ul>
+        <li><strong>Índice medio</strong>: media de los 12 meses del año. Compara el nivel de precios con el año base.</li>
+        <li><strong>Inflación anual</strong>: variación del índice medio respecto al año anterior. La barra roja indica subida y la verde, bajada.</li>
+        <li><strong>Subida acumulada</strong>: cuánto han subido los precios desde el primer año con datos del país.</li>
+        <li><strong>Valores oficiales</strong>: parte de los datos que proviene de estadísticas oficiales; el resto son estimaciones o imputaciones.</li>
+        <li>Un asterisco (*) indica un año incompleto (menos de 12 meses con datos).</li>
+        <li>Haz clic en el título de una columna para ordenar, en el nombre de un país para ver toda su evolución y en un año para ver el detalle mes a mes.</li>
+    </ul>
+</details>
+    </aside>
+    <section class="results">
+        <p class="count">{{ total }} resultado{{ "" if total == 1 else "s" }}</p>
+
+{% if rows %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                {{ sort_th("country", "País") }}
+                {{ sort_th("year", "Año") }}
+                {{ sort_th("avg_index", "Índice medio", base_label) }}
+                {{ sort_th("inflation", "Inflación anual", "Variación respecto al año anterior") }}
+                {% if detail %}
+                    {{ sort_th("since_start", "Subida acumulada", "Desde el primer año con datos del país") }}
+                    {{ sort_th("months", "Meses con datos") }}
+                    {{ sort_th("official_pct", "Valores oficiales") }}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+            <tr>
+                <td><a href="{{ url_for('pais', country=r.country) }}">{{ r.country }}</a></td>
+                <td><a href="{{ url_for('detalle', year=r.year, country=r.country) }}">{{ r.year }}</a>{% if r.months < 12 %}*{% endif %}</td>
+                <td class="num">{{ "%.1f"|format(r.avg_index) }}</td>
+                <td class="infl">
+                    {% if r.inflation is not none %}
+                        {% set w = [r.inflation|abs * 4, 100]|min %}
+                        <span class="bar {{ 'up' if r.inflation >= 0 else 'down' }}" style="width: {{ w }}px"></span>
+                        <span class="val">{{ "%+.1f"|format(r.inflation) }}&nbsp;%</span>
+                    {% else %}
+                        <span class="muted">sin dato</span>
+                    {% endif %}
+                </td>
+                {% if detail %}
+                    <td class="num">{{ "%+.1f"|format(r.since_start) }}&nbsp;%</td>
+                    <td class="num">{{ r.months }}</td>
+                    <td class="num">{{ r.official_pct }}&nbsp;%</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<nav class="pager" aria-label="Paginación">
+    {% if page > 1 %}<a href="{{ url_for('dashboard', page=page - 1, sort=sort_by, order=order, **filters) }}">Anterior</a>{% endif %}
+    <span>Página {{ page }} de {{ pages }}</span>
+    {% if page < pages %}<a href="{{ url_for('dashboard', page=page + 1, sort=sort_by, order=order, **filters) }}">Siguiente</a>{% endif %}
+</nav>
+{% else %}
+<p class="empty">No hay datos con esos filtros. Prueba a ampliar el rango de años o a elegir «Todos» en país.</p>
+{% endif %}
+    </section>
+</div>
+{% endblock %}

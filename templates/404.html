@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}No encontrado{% endblock %}
+{% block hero %}
+    <h1>No encontramos esa página</h1>
+{% endblock %}
+{% block content %}
+<section class="prose">
+    <p>El país o la dirección que buscas no existe en este conjunto de datos. <a href="{{ url_for('dashboard') }}">Volver a la tabla de datos</a>.</p>
+</section>
+{% endblock %}

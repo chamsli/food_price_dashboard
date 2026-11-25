@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Gráficos{% endblock %}
+{% block hero %}
+    <h1>Tres formas de ver los precios de la comida</h1>
+    <p class="subtitle">Elige países y un año para comparar. Cada gráfico responde a una pregunta distinta.</p>
+{% endblock %}
+
+{% block content %}
+
+<form class="filters chart-filters" id="selector" method="get" action="{{ url_for('graficas') }}#selector">
+    <fieldset class="country-picker">
+        <legend>Países a comparar en el primer gráfico (máximo 6)</legend>
+        <div class="checks">
+            {% for c in all_countries %}
+                <label class="check">
+                    <input type="checkbox" name="countries" value="{{ c }}" {% if c in selected %}checked{% endif %} onchange="this.form.submit()">
+                    {{ c }}
+                </label>
+            {% endfor %}
+        </div>
+        {% if too_many %}<p class="warn">Has marcado más de 6 países: solo se muestran los 6 primeros por orden alfabético.</p>{% endif %}
+    </fieldset>
+    <label>Año del ranking (segundo gráfico)
+        <select name="year" onchange="this.form.submit()">
+            {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+        </select>
+    </label>
+    <noscript><button type="submit">Actualizar gráficos</button></noscript>
+</form>
+
+<div class="chart-grid">
+<section class="chart-block">
+    <h2>¿Qué países han encarecido más su comida?</h2>
+    <img src="data:image/png;base64,{{ line_img }}" alt="Líneas con la evolución anual del índice de precios de los alimentos de {{ selected|join(', ') }}">
+    <p class="reading"><strong>Cómo leerlo:</strong> cada línea es un país. La línea discontinua marca el nivel 100 del año base.
+        Cuanto más empinada es la línea, más rápido suben los precios; si dos líneas se cruzan, un país ha alcanzado al otro.</p>
+</section>
+
+
+<section class="chart-block">
+    <h2>¿Quién sufrió la mayor subida en {{ year }}?</h2>
+    {% if ranking %}
+        <img src="data:image/png;base64,{{ ranking_img }}" alt="Barras con los 10 países con mayor inflación alimentaria en {{ year }}">
+        <p class="reading"><strong>Cómo leerlo:</strong> en {{ year }}, {{ ranking[0].country }} registró la mayor inflación alimentaria
+            ({{ "%.1f"|format(ranking[0].inflation) }}&nbsp;%). Una inflación del 10&nbsp;% significa que la cesta de alimentos
+            costaba de media un 10&nbsp;% más que el año anterior.</p>
+    {% else %}
+        <p class="empty">Ese año no tiene datos de inflación suficientes. Elige otro año.</p>
+    {% endif %}
+</section>
+
+
+<section class="chart-block wide">
+    <h2>¿Hubo años en que subió todo a la vez?</h2>
+    <img src="data:image/png;base64,{{ median_img }}" alt="Barras con la inflación mediana de los alimentos de todos los países por año">
+    <p class="reading"><strong>Cómo leerlo:</strong> cada barra es la inflación mediana de todos los países ese año.
+        {% if peak_year %}El año más alto fue {{ peak_year }} ({{ "%.1f"|format(peak_value) }}&nbsp;%), marcado en rojo.{% endif %}
+        Se usa la mediana y no la media porque unos pocos países con inflaciones extremas distorsionarían el promedio.
+        Este gráfico no cambia al elegir países porque resume a todos. Cuando casi todos los países suben a la vez, la causa suele ser global: energía, fertilizantes, guerras o crisis de transporte.</p>
+</section>
+</div>
+{% endblock %}

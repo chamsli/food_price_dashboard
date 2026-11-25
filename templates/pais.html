@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ country }}{% endblock %}
+{% block hero %}
+    <h1>{{ country }}</h1>
+    <p class="subtitle">Evolución de los precios de los alimentos, {{ rows[0].year }}–{{ rows[-1].year }}</p>
+{% endblock %}
+
+{% block content %}
+<p class="back"><a href="{{ url_for('dashboard', country=country) }}">← Volver a la tabla</a></p>
+<div class="top-row">
+    <section class="prose">
+    {% set last = rows[-1] %}
+    <p>Entre {{ rows[0].year }} y {{ last.year }}, los precios de los alimentos en {{ country }} han subido un
+        <strong>{{ "%.1f"|format(last.since_start) }}&nbsp;%</strong>. El gráfico muestra la evolución mes a mes;
+        los puntos amarillos son valores estimados, no oficiales.</p>
+</section>
+    <section class="chart-block">
+    <img src="data:image/png;base64,{{ chart }}" alt="Evolución mensual del índice de precios de los alimentos en {{ country }}">
+    <p class="reading"><strong>Cómo leerlo:</strong> {{ base_label }}. La línea discontinua marca el nivel 100; por encima, la comida es más cara que en el año base.</p>
+</section>
+</div>
+
+<h2>Resumen por año</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Año</th><th>Índice medio</th><th>Inflación anual</th><th>Subida acumulada</th><th>Valores oficiales</th></tr></thead>
+        <tbody>
+            {% for r in rows|reverse %}
+            <tr>
+                <td><a href="{{ url_for('detalle', year=r.year, country=country) }}">{{ r.year }}</a>{% if r.months < 12 %}*{% endif %}</td>
+                <td class="num">{{ "%.1f"|format(r.avg_index) }}</td>
+                <td class="infl">
+                    {% if r.inflation is not none %}
+                        {% set w = [r.inflation|abs * 4, 100]|min %}
+                        <span class="bar {{ 'up' if r.inflation >= 0 else 'down' }}" style="width: {{ w }}px"></span>
+                        <span class="val">{{ "%+.1f"|format(r.inflation) }}&nbsp;%</span>
+                    {% else %}<span class="muted">sin dato</span>{% endif %}
+                </td>
+                <td class="num">{{ "%+.1f"|format(r.since_start) }}&nbsp;%</td>
+                <td class="num">{{ r.official_pct }}&nbsp;%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="muted small">* Año con menos de 12 meses de datos.</p>
+<p class="muted small"><strong>Valores oficiales</strong>: porcentaje de los meses del año cuyo dato fue publicado por la oficina de estadística del país (marca «A» de la FAO).
+    El resto son valores estimados o imputados: la FAO o el propio país los calculan cuando no hay una medición mensual directa. Un 0&nbsp;% no significa que el dato esté mal, sino que ese año es todo estimado.</p>
+{% endblock %}

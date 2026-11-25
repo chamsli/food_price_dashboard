@@ -1,0 +1,156 @@
+:root {
+    --forest: #243B32;       /* cabecera y textos */
+    --sage: #78917C;       /* botones y enlaces */
+    --terracota: #C66B52;
+    --ivory: #eebb44;      /* detalles y foco */
+    --red: #C8372D;        /* subidas de precios */
+    --green: #2A9D8F;      /* bajadas de precios */
+    --paper: #F4F6F9;      /* fondo de la página */
+    --white: #FFFFFF;
+    --line: #DDE3EA;
+    --muted: #5B6B7B;
+    --shadow: 0 1px 3px rgba(15, 39, 66, 0.08), 0 4px 14px rgba(15, 39, 66, 0.06);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--forest);
+    background: var(--paper);
+}
+a { color: var(--sage); }
+a:focus-visible, button:focus-visible, select:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--ivory);
+    outline-offset: 2px;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
+
+/* ----- cabecera y portada ----- */
+.site-header { background: var(--forest); color: var(--white); border-bottom: 3px solid var(--ivory); }
+.header-inner { display: flex; justify-content: space-between; align-items: center; min-height: 62px; flex-wrap: wrap; gap: 8px; }
+.brand { font-size: 1.25rem; font-weight: 700; color: var(--white); text-decoration: none; letter-spacing: 0.01em; }
+.site-header nav { display: flex; gap: 6px; }
+.site-header nav a { color: #C7D3E0; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; }
+.site-header nav a:hover { color: var(--white); background: rgba(255, 255, 255, 0.1); }
+.site-header nav a[aria-current="page"] { color: var(--forest); background: var(--ivory); }
+
+.hero { background: var(--sage); color: var(--white); text-align: left; padding: 44px 0 40px; }
+.hero h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4.2vw, 2.8rem); line-height: 1.15; font-weight: 700; }
+.hero .subtitle { margin: 0; max-width: 70ch; font-size: 1.1rem; color: #D6E2F0; }
+
+main.wrap { padding-top: 36px; padding-bottom: 48px; }
+
+/* ----- texto justificado, como una página normal ----- */
+.prose, .reading {
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+}
+.prose { flex: 1 1 460px; margin: 0; }
+.prose p { margin: 0 0 12px; }
+.reading { margin: 0; color: #2E3E50; font-size: 1rem; }
+h2 { font-size: 1.4rem; margin: 0 0 10px; font-weight: 700; }
+
+/* ----- distribución a ancho completo ----- */
+.top-row { display: flex; flex-wrap: wrap; gap: 28px; align-items: center; margin-bottom: 28px; }
+.layout { display: flex; gap: 28px; align-items: flex-start; }
+.sidebar { flex: 0 0 290px; position: sticky; top: 16px; }
+.results { flex: 1 1 0; min-width: 0; }
+
+/* ----- datos clave ----- */
+.facts { flex: 1 1 460px; display: flex; flex-wrap: wrap; gap: 1px; background: var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+.facts div { flex: 1 1 calc(50% - 1px); padding: 20px; text-align: center; background: var(--white); display: flex; flex-direction: column; justify-content: center; }
+.facts strong { display: block; font-size: 2rem; line-height: 1.15; font-weight: 700; color: var(--red); }
+.facts div:nth-child(2) strong { color: var(--sage); }
+.facts div:nth-child(3) strong { color: var(--forest); }
+.facts div:nth-child(4) strong { color: var(--muted); }
+.facts span { display: block; margin-top: 4px; font-size: 0.92rem; color: var(--muted); }
+
+/* ----- ayuda ----- */
+.howto { background: var(--white); border-radius: 8px; box-shadow: var(--shadow); padding: 12px 20px; margin-top: 16px; }
+.howto summary { cursor: pointer; font-weight: 600; }
+.howto ul { margin: 10px 0 4px; padding-left: 20px; }
+.howto li { margin-bottom: 4px; }
+
+/* ----- filtros ----- */
+.filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 14px; padding: 16px 20px; background: var(--white); border-radius: 8px; box-shadow: var(--shadow); }
+.filters label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font-weight: 600; }
+.filters select { font: inherit; font-weight: 400; padding: 7px 10px; border: 1px solid #B8C4D0; border-radius: 6px; background: var(--white); color: var(--forest); min-width: 120px; }
+.filters select[multiple] { min-width: 240px; }
+.filters button { font: inherit; font-weight: 600; padding: 9px 20px; border: 0; border-radius: 6px; background: var(--sage); color: var(--white); cursor: pointer; }
+.filters button:hover { background: var(--terracota); }
+.reset { padding: 9px 4px; font-size: 0.95rem; }
+.hint { font-size: 0.85rem; color: var(--muted); max-width: 30ch; }
+.count { margin: 0 0 8px; color: var(--muted); font-size: 0.95rem; }
+
+.filters.side { flex-direction: column; align-items: stretch; margin-bottom: 0; }
+.filters.side select, .filters.side button { width: 100%; }
+.filters.side .reset { text-align: center; }
+
+/* ----- tabla ----- */
+.table-wrap { overflow-x: auto; background: var(--white); border-radius: 8px; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; font-size: 0.97rem; }
+th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+thead th { background: var(--forest); color: var(--white); font-weight: 600; position: sticky; top: 0; }
+thead th a { color: var(--white); text-decoration: none; font-weight: 600; }
+thead th a:hover { text-decoration: underline; }
+tbody tr:nth-child(even) { background: #F8FAFC; }
+tbody tr:hover { background: #EAF1F9; }
+td.num { font-variant-numeric: tabular-nums; }
+td.infl { min-width: 190px; }
+.bar { display: inline-block; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 8px; }
+.bar.up { background: var(--red); }
+.bar.down { background: var(--green); }
+.val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+
+.pager { display: flex; justify-content: center; align-items: center; gap: 18px; margin: 18px 0; }
+.pager a { font-weight: 600; }
+.empty { padding: 24px; background: var(--white); border: 1px dashed #B8C4D0; border-radius: 8px; text-align: center; }
+
+/* ----- selector de países ----- */
+.chart-filters { align-items: flex-start; }
+.country-picker { flex: 1 1 100%; border: 0; margin: 0; padding: 0; }
+.country-picker legend { font-weight: 600; font-size: 0.9rem; padding: 0; margin-bottom: 8px; }
+.checks { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.check { flex: 0 0 210px; flex-direction: row !important; align-items: center; gap: 8px !important; font-weight: 400 !important; font-size: 0.95rem !important; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+.check:hover { background: #EAF1F9; }
+.check input { width: 17px; height: 17px; accent-color: var(--sage); }
+.warn { margin: 8px 0 0; color: var(--red); font-size: 0.9rem; }
+
+.section-title { margin: 28px 0 12px; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+.badge.ok { background: #DCEFEA; color: #1B6B60; }
+.badge.est { background: #FBEBC8; color: #7A5410; }
+
+/* ----- gráficos ----- */
+.chart-grid { display: flex; flex-wrap: wrap; gap: 24px; }
+.chart-grid .chart-block { flex: 1 1 520px; margin-bottom: 0; min-width: 0; }
+.chart-grid .chart-block.wide { flex: 1 1 100%; }
+.top-row .chart-block { flex: 2 1 560px; margin-bottom: 0; min-width: 0; }
+.chart-block { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px; }
+.chart-block h2 { text-align: left; }
+.chart-block img { display: block; max-width: 100%; height: auto; margin: 8px auto 14px; }
+.back { margin: 0 0 12px; }
+
+.site-footer { padding-top: 16px; padding-bottom: 32px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+
+@media (max-width: 900px) {
+    .layout { flex-direction: column; }
+    .sidebar { flex: 1 1 auto; position: static; width: 100%; }
+}
+@media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    body { font-size: 16px; }
+    .hero { padding: 30px 0 28px; }
+    .facts div { flex-basis: 100%; }
+    .prose, .reading { text-align: left; }
+    .filters select { min-width: 100px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
