@@ -64,21 +64,6 @@ Toda la lógica de negocio (consultas, operaciones sobre los datos y creación d
 Las gráficas se generan con matplotlib en el servidor y se incrustan en la página como imágenes PNG codificadas en base64, por lo que no se escriben archivos en disco.
 
 
-## Despliegue en PythonAnywhere
-
-1. Sube la carpeta del proyecto (incluido `data/food_prices.csv`) a `/home/TU_USUARIO/flask_dashboard`.
-2. En una consola Bash: `mkvirtualenv --python=/usr/bin/python3.10 meuentorn` y `pip install flask matplotlib`.
-3. En la pestaña *Web*, crea una aplicación con *Manual configuration* (Python 3.10) e indica la ruta del entorno virtual.
-4. En el archivo WSGI usa:
-   ```python
-   import sys
-   project_home = '/home/TU_USUARIO/flask_dashboard'
-   if project_home not in sys.path:
-       sys.path.insert(0, project_home)
-   from app import app as application
-   ```
-5. Pulsa **Reload** y abre `https://TU_USUARIO.pythonanywhere.com`.
-
 ## Limitaciones
 
 - El primer año del conjunto (2010) no tiene inflación anual porque no hay un año anterior con el que compararlo.
