@@ -61,7 +61,7 @@ food_dashboard/
 ```
 
 Toda la lógica de negocio (consultas, operaciones sobre los datos y creación de gráficas) está en módulos independientes dentro de `services/`.Y `app.py` contiene únicamente las rutas.
-Las gráficas se generan con matplotlib en el servidor y se incrustan en la página como imágenes PNG codificadas en base64, por lo que no se escriben archivos en disco.
+Las gráficas se generan con matplotlib en el servidor y se incrustan en la página como imágenes PNG codificadas en base64.
 
 
 ## Limitaciones
